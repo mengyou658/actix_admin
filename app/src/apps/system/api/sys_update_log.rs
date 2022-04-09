@@ -1,3 +1,4 @@
+use actix_web::web::{Json, Query};
 use db::{
     common::res::Res,
     db_conn,
@@ -7,15 +8,14 @@ use db::{
     },
     DB,
 };
-use poem::{handler, web::Json};
 
 use crate::utils::jwt::Claims;
 
 use super::super::service;
 
 /// add 添加
-#[handler]
-pub async fn add(Json(req): Json<AddReq>, user: Claims) -> Res<String> {
+
+pub async fn add(Json(req): Json<AddReq>, Query(user): Query<Claims>) -> Res<String> {
     let db = DB.get_or_init(db_conn).await;
     let res = service::sys_update_log::add(db, req, &user.id).await;
     match res {
@@ -25,7 +25,7 @@ pub async fn add(Json(req): Json<AddReq>, user: Claims) -> Res<String> {
 }
 
 /// delete 完全删除
-#[handler]
+
 pub async fn delete(Json(req): Json<DeleteReq>) -> Res<String> {
     let db = DB.get_or_init(db_conn).await;
     let res = service::sys_update_log::soft_delete(db, &req.id).await;
@@ -36,8 +36,8 @@ pub async fn delete(Json(req): Json<DeleteReq>) -> Res<String> {
 }
 
 // edit 修改
-#[handler]
-pub async fn edit(Json(req): Json<EditReq>, user: Claims) -> Res<String> {
+
+pub async fn edit(Json(req): Json<EditReq>, Query(user): Query<Claims>) -> Res<String> {
     let db = DB.get_or_init(db_conn).await;
     let res = service::sys_update_log::edit(db, req, &user.id).await;
     match res {
@@ -47,7 +47,7 @@ pub async fn edit(Json(req): Json<EditReq>, user: Claims) -> Res<String> {
 }
 
 /// get_all 获取全部
-#[handler]
+
 pub async fn get_all() -> Res<Vec<sys_update_log::Model>> {
     let db = DB.get_or_init(db_conn).await;
     let res = service::sys_update_log::get_all(db).await;

@@ -50,7 +50,7 @@ pub struct DeptResp {
     pub status: String,
 }
 
-#[derive(Serialize, Clone, Debug, Default)]
+#[derive(Deserialize, Serialize, Clone, Debug, Default)]
 pub struct RespTree {
     #[serde(flatten)]
     pub data: DeptResp,

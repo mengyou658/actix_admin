@@ -1,12 +1,12 @@
 use std::{borrow::Cow, collections::HashMap};
+use std::net::SocketAddr;
+use actix_web::http::header::HeaderMap;
 
 use configs::CFG;
 use db::common::client::{ClientInfo, ClientNetInfo, UserAgentInfo};
-use headers::HeaderMap;
-use poem::web::RemoteAddr;
 use user_agent_parser::UserAgentParser;
 
-pub async fn get_client_info(header: HeaderMap, remote_addr: RemoteAddr) -> ClientInfo {
+pub async fn get_client_info(header: HeaderMap, remote_addr: SocketAddr) -> ClientInfo {
     // 改为 header 中获取
 
     let user_agent = header.get("user-agent").unwrap().to_str().unwrap();
@@ -16,7 +16,7 @@ pub async fn get_client_info(header: HeaderMap, remote_addr: RemoteAddr) -> Clie
     ClientInfo { net, ua }
 }
 
-pub fn get_remote_ip(header: HeaderMap, remote_addr: RemoteAddr) -> String {
+pub fn get_remote_ip(header: HeaderMap, remote_addr: SocketAddr) -> String {
     let ip = match header.get("X-Forwarded-For") {
         Some(x) => {
             let mut ips = x.to_str().unwrap().split(',');

@@ -1,7 +1,7 @@
 [package]
-default-run = "poem-admin"
+default-run = "actix-admin"
 edition = "2021"
-name = "poem-admin"
+name = "actix-admin"
 version = "0.1.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -13,7 +13,17 @@ configs = {path = "../configs"}
 db = {path = "../db"}
 #
 # poem = {version = "1.3", features = ["static-files", "rustls", "compression", "multipart", "tokio-metrics"]}
-poem = {version = "1.3", features = ["static-files", "rustls", "compression", "multipart"]}
+#poem = {version = "1.3", features = ["static-files", "rustls", "compression", "multipart"]}
+#web server
+actix-web = "4"
+#actix-http = "3"
+# 静态文件服务
+actix-files = "0"
+actix-identity = "0"
+actix-multipart = "0"
+actix-web-actors = "4"
+actix-form-data = "0.6"
+
 #
 tracing = "0.1"
 tracing-appender = "0.2"

@@ -68,14 +68,14 @@ pub struct UserResp {
     pub created_at: Option<NaiveDateTime>,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct UserWithDept {
     #[serde(flatten)]
     pub user: UserResp,
     pub dept: DeptResp,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct UserInfomaion {
     pub user_info: UserWithDept,
     pub post_ids: Vec<String>,
@@ -114,7 +114,7 @@ pub struct UserLoginReq {
     pub uuid: String,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct UserInfo {
     pub user: UserWithDept,
     pub roles: Vec<String>,

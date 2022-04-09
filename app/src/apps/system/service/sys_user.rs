@@ -1,3 +1,6 @@
+use actix_web::dev::ServiceRequest;
+use actix_web::HttpRequest;
+use actix_web::web::Query;
 use anyhow::{anyhow, Ok, Result};
 use chrono::{Local, NaiveDateTime};
 use db::{
@@ -13,9 +16,9 @@ use db::{
         },
     },
 };
-use poem::Request;
 use scru128::scru128_string;
 use sea_orm::{sea_query::Expr, ColumnTrait, DatabaseConnection, EntityTrait, JoinType, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, Set, TransactionTrait};
+use tracing::debug;
 
 use crate::utils::{
     self,
@@ -460,11 +463,11 @@ pub async fn edit(db: &DatabaseConnection, req: EditReq, c_user_id: String) -> R
 }
 
 /// 用户登录
-pub async fn login(db: &DatabaseConnection, login_req: UserLoginReq, req: &Request) -> Result<AuthBody> {
+pub async fn login(db: &DatabaseConnection, login_req: UserLoginReq, req: HttpRequest) -> Result<AuthBody> {
     let mut msg = "登录成功".to_string();
     let mut status = "1".to_string();
     // 验证验证码
-    if utils::encrypt_password(&login_req.code, "") != login_req.uuid {
+    if utils::encrypt_password(&login_req.code.to_lowercase(), "") != login_req.uuid {
         msg = "验证码错误".to_string();
         status = "0".to_string();
         set_login_info(req, "".to_string(), login_req.user_name.clone(), msg.clone(), status.clone(), None, None).await;
@@ -503,6 +506,7 @@ pub async fn login(db: &DatabaseConnection, login_req: UserLoginReq, req: &Reque
     };
     let token_id = scru128_string();
     let token = utils::authorize(claims.clone(), token_id.clone()).await.unwrap();
+    debug!("authorize: {:?}", token);
     // 成功登录后
     //  写入登录日志
 
@@ -535,9 +539,9 @@ pub async fn fresh_token(user: Claims) -> Result<AuthBody> {
     Ok(token)
 }
 
-pub async fn set_login_info(req: &Request, u_id: String, user: String, msg: String, status: String, token_id: Option<String>, token: Option<AuthBody>) {
+pub async fn set_login_info(req: HttpRequest, u_id: String, user: String, msg: String, status: String, token_id: Option<String>, token: Option<AuthBody>) {
     let header = req.headers().to_owned();
-    let remote_addr = req.remote_addr().to_owned();
+    let remote_addr = req.peer_addr().unwrap().to_owned();
     let u = utils::get_client_info(header, remote_addr).await;
     // 写入登录日志
     let u2 = u.clone();

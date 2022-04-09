@@ -61,7 +61,7 @@ pub struct AddOrCancelAuthRoleReq {
     pub role_id: String,
 }
 
-#[derive(Debug, Serialize, FromQueryResult, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromQueryResult, Clone)]
 pub struct Resp {
     pub role_id: String,
     pub role_name: String,

@@ -1,40 +1,35 @@
 use configs::CFG;
-use poem::{endpoint::StaticFilesEndpoint, get, post, EndpointExt, Route};
+use actix_web::{Route, Scope};
+use actix_web::web;
+use actix_files::Files;
+use actix_web::http::StatusCode;
+use actix_web::web::service;
+use anyhow::anyhow;
+use db::common::ctx::UserInfo;
+use db::common::errors;
 
 use crate::middleware;
+use crate::utils::ApiUtils;
+use crate::utils::jwt::Claims;
 
 pub mod system;
 pub mod test;
 
-pub fn api() -> Route {
-    Route::new()
-        .nest(&CFG.web.upload_url, StaticFilesEndpoint::new(&CFG.web.upload_dir).show_files_listing())
-        // 无需授权Api.通用模块
-        .nest("/comm", no_auth_api())
-        // 系统管理模块
-        .nest(
-            "/system",
-            system::system_api()
-                .with(middleware::ApiAuth)
-                .with_if(CFG.log.enable_oper_log, middleware::OperLog)
-                .with_if(CFG.server.cache_time > 0, middleware::Cache)
-                .with(middleware::Ctx),
-        )
-        //  测试模块
-        .nest(
-            "/test",
-            test::api::test_api()
-                .with(middleware::ApiAuth)
-                .with_if(CFG.log.enable_oper_log, middleware::OperLog)
-                .with(middleware::Ctx),
-        )
+pub fn api(route: Scope) -> Scope {
+  route
+    // 无需授权Api.通用模块
+    .service(no_auth_api(web::scope("/comm")))
+    // 系统管理模块
+    .service(system::system_api(web::scope("/system")))
+    //  测试模块
+    .service(test::api::test_api(web::scope("/test")))
 }
 
 //
 
-pub fn no_auth_api() -> Route {
-    Route::new()
-        .at("/login", post(system::SysLogin)) // 登录
-        .at("/get_captcha", get(system::get_captcha)) // 获取验证码
-        .at("/log_out", post(system::log_out)) // 退出登录
+pub fn no_auth_api(route: Scope) -> Scope {
+  route
+    .service(web::resource("/login").route(web::post().to(system::SysLogin))) // 登录
+    .service(web::resource("/get_captcha").route(web::get().to(system::get_captcha))) // 获取验证码
+    .service(web::resource("/log_out").route(web::post().to(system::log_out))) // 退出登录
 }

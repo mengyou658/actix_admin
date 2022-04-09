@@ -35,7 +35,7 @@ pub struct EditReq {
     pub remark: Option<String>,
 }
 
-#[derive(Debug, Serialize, FromQueryResult)]
+#[derive(Debug, Deserialize, Serialize, Clone, FromQueryResult)]
 pub struct Resp {
     pub post_id: String,
     pub post_code: String,

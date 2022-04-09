@@ -13,6 +13,8 @@ use db::{
     DB,
 };
 use sea_orm::{sea_query::Expr, ColumnTrait, DatabaseConnection, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder, Set, TransactionTrait};
+use db::system::models::sys_dept::DeptResp;
+use db::system::models::sys_user::UserWithDept;
 
 /// get_list 获取列表
 /// page_params 分页参数
@@ -99,8 +101,8 @@ pub async fn add(req: ClientInfo, u_id: String, token_id: String, token_exp: i64
     let db = DB.get_or_init(db_conn).await;
     let uid = scru128::scru128().to_string();
     let now = Local::now().naive_local();
-    let user = super::sys_user::get_by_id(db, &u_id).await.expect("获取用户信息失败");
-    let dept = super::sys_dept::get_by_id(db, &user.clone().user.dept_id).await.expect("获取部门信息失败");
+    let user = super::sys_user::get_by_id(db, &u_id).await.unwrap_or(UserWithDept::default());
+    let dept = super::sys_dept::get_by_id(db, &user.clone().user.dept_id).await.unwrap_or(DeptResp::default());
     let active_model = sys_user_online::ActiveModel {
         id: Set(uid.clone()),
         u_id: Set(u_id),

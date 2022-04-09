@@ -9,8 +9,6 @@
 后端git：  [poem_admin](https://github.com/lingdu1234/poem_admin)   <https://github.com/lingdu1234/poem_admin>
 
 预览地址：
-[poem-vue-admin.vercel.app](https://poem-vue-admin.vercel.app/)
-[预览地址](https://poem.iu314.top/)
 
 ## 完成的功能
 
@@ -49,7 +47,19 @@
 ## 待完成
 
 - [ ] 性能优化；
+- [x] 替换poem
+  - [ ] middle log
+  - [ ] middle ctx
+  - [ ] middle opera_log
+- [ ] 细节调整；
+  - [ ] redis
+  - [ ] 其他bug
+
 
 ## 说明
 
-1. 部门切换,不知道有啥用，角色切换，数据权限，部门切换 3者组合可以实现诡异的权限组合
+1. 初始用户sql
+```sql
+INSERT INTO sys_user (id, user_name, user_nickname, user_password, user_salt, user_status, user_email, sex, avatar, role_id, dept_id, remark, is_admin, phone_num, last_login_ip, last_login_time, created_at, updated_at, deleted_at) VALUES ('00UT9J78PSU5QJRE3HSDUG94R2', 'user', 'user', '4dc7373ccd817d86302e4c08d7e48813', 'qGUKfTRqPp', '1', '1@1.com', '2', '/upload/2022-03/10-0104PTDET54HCR1F72LM8PHC8I.jpg', '00UHKP89CT1NDVFN6Q0E8LO7NT', '00UHISGODQLSC2NAPPCCDPPCFU', '普通用户', '1', '13312345678', '', NULL, '2022-02-07 17:53:20', '2022-03-07 11:18:49', NULL);
+```
+2. 部门切换,不知道有啥用，角色切换，数据权限，部门切换 3者组合可以实现诡异的权限组合

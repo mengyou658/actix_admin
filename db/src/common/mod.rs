@@ -8,3 +8,4 @@ pub mod ctx;
 pub mod res;
 
 pub mod data_scope;
+pub mod errors;

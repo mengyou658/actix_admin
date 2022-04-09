@@ -37,7 +37,7 @@ pub struct MenuResp {
     pub remark: String,
 }
 
-#[derive(Serialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct MenuRelated {
     #[serde(flatten)]
     pub menu: sys_menu::Model,
@@ -45,7 +45,7 @@ pub struct MenuRelated {
     pub apis: Vec<String>,
 }
 
-#[derive(Serialize, Clone, Debug, Default)]
+#[derive(Serialize, Deserialize, Clone, Debug, Default)]
 pub struct UserMenu {
     pub id: String,
     pub pid: String,
@@ -59,7 +59,7 @@ pub struct UserMenu {
     pub meta: Meta,
 }
 
-#[derive(Serialize, Clone, Debug, Default)]
+#[derive(Serialize, Deserialize, Clone, Debug, Default)]
 pub struct Meta {
     pub icon: String,
     pub title: String,
@@ -68,7 +68,7 @@ pub struct Meta {
     pub hidden: bool,
 }
 
-#[derive(Serialize, Clone, Debug, Default)]
+#[derive(Serialize, Deserialize, Clone, Debug, Default)]
 pub struct SysMenuTree {
     #[serde(flatten)]
     pub user_menu: UserMenu,

@@ -1,8 +1,8 @@
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct CaptchaImage {
-    pub captcha_on_off: bool,
-    pub uuid: String,
-    pub img: String,
+  pub captcha_on_off: bool,
+  pub uuid: String,
+  pub img: String,
 }

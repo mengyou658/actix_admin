@@ -1,5 +1,6 @@
 [server]
-name = "poem-admin"
+api_prefix = ""
+name = "actix-admin"
 version = "0.1.0"
 # 服务器ip 端口
 address = "0.0.0.0:3000"
@@ -12,6 +13,7 @@ cache_time = 10
 [web]
 dir = "data/_web"
 index = "index.html"
+upload_url = "/upload"
 upload_dir = "data/upload"
 [cert]
 cert = "config/cert/cert.pem"
@@ -32,7 +34,7 @@ user_agent_parser = "config/regexes.yaml"
 [jwt]
 # 单位 分钟
 jwt_exp = 14400 # 10天 14400
-jwt_secret = 'secret' 
+jwt_secret = 'secret'
 [database]
 db_type = 'mysql'
 # link = 'mysql://root:password@192.168.1.11:13306/db'

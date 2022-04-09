@@ -7,16 +7,13 @@ use db::{
     },
     DB,
 };
-use poem::{
-    handler,
-    web::{Json, Query},
-};
+use actix_web::web::{Json, Query};
 
 use super::super::service;
 
 /// get_list 获取列表
 /// page_params 分页参数
-#[handler]
+
 pub async fn get_sort_list(Query(page_params): Query<PageParams>, Query(req): Query<SearchReq>) -> Res<ListData<sys_login_log::Model>> {
     let db = DB.get_or_init(db_conn).await;
     let res = service::sys_login_log::get_sort_list(db, page_params, req).await;
@@ -26,7 +23,7 @@ pub async fn get_sort_list(Query(page_params): Query<PageParams>, Query(req): Qu
     }
 }
 
-#[handler]
+
 pub async fn delete(Json(delete_req): Json<DeleteReq>) -> Res<String> {
     let db = DB.get_or_init(db_conn).await;
     let res = service::sys_login_log::delete(db, delete_req).await;
@@ -37,7 +34,7 @@ pub async fn delete(Json(delete_req): Json<DeleteReq>) -> Res<String> {
     }
 }
 
-#[handler]
+
 pub async fn clean() -> Res<String> {
     let db = DB.get_or_init(db_conn).await;
     let res = service::sys_login_log::clean(db).await;
