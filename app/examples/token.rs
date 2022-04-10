@@ -49,7 +49,7 @@ fn test2() {
     println!("{:?}", res);
     let res = verify_token(&res).unwrap();
     println!("{:?}", res);
-    let token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjAwVVQ5Sjc4UFNVNVFKUkUzSFNEVUc5NFIyIiwidG9rZW5faWQiOiIwMTFCTko4N0RDVk1HTDFJRjFRNzdHNE05OCIsIm5hbWUiOiJ1c2VyIiwiZXhwIjoxNjUwMzU1NDU0fQ.MTVzlJ5U_fqk69ohAMntXoQG1hBnT8um0-qF2vKpDYQ011BNJ87DCVMGL1IF1Q77G4M98";
+    let token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjAwVVQ5Sjc4UFNVNVFKUkUzSFNEVUc5NFIyIiwidG9rZW5faWQiOiIwMTFDTjhSOVVUQUlLRzIzN0FKOExSSk80RCIsIm5hbWUiOiJ1c2VyIiwiZXhwIjoxNjUwNDIxODgxfQ.TC0xosCvPtun5tVHOWUzyFGlUSEuXhVJDNyqvuD6Aa8";
 
     let res = verify_token(token).unwrap();
     println!("{:?}", res);

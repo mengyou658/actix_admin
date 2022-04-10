@@ -5,9 +5,10 @@ use chrono::{Duration, Local};
 use headers::{authorization::Bearer, Authorization};
 use jsonwebtoken::{decode, encode, errors::ErrorKind, DecodingKey, EncodingKey, Header, Validation};
 use once_cell::sync::Lazy;
+use sea_orm::debug_print;
 use serde::{Deserialize, Serialize};
 use db::common::errors::{Error, Result, BadRequest};
-use tracing::{debug, info};
+use tracing::{debug, error, info};
 use crate::apps::system::check_user_online;
 
 pub static KEYS: Lazy<Keys> = Lazy::new(|| {
@@ -52,20 +53,12 @@ impl Claims {
     /// 将用户信息注入request
     pub async fn from_request(req: HeaderMap) -> Result<Self> {
         let token_v = get_bear_token(req).await.unwrap();
-        let claims = match verify_token(token_v.as_str()) {
-            Ok(claims) => {
-                let token_id = claims.token_id.clone();
-                let (x, _) = check_user_online(None, token_id).await;
-                if x {
-                    claims
-                } else {
-                    return Err(BadRequest::msg("该账户已经退出"));
-                }
-            }
-            Err(err) => {
-                return Err(err);
-            },
-        };
+        let claims = verify_token(token_v.as_str())?;
+        let token_id = claims.token_id.clone();
+        let (x, _) = check_user_online(None, token_id).await;
+        if !x {
+            return Err(BadRequest::msg("该账户已经退出"));
+        }
         Ok(claims)
     }
     pub async fn from_request_without_body(req: HeaderMap) -> Result<Self> {
@@ -83,7 +76,7 @@ pub async fn get_bear_token(req: HeaderMap) -> Option<String> {
             let bearer_data = bearer.token();
             let cut = bearer_data.len() - scru128::scru128_string().len();
             debug!("get_bear_token {} {}", bearer_data, cut);
-            Some(bearer_data["Bearer ".len()-1..cut].to_string())
+            Some(bearer_data["Bearer ".len()..cut].to_string().trim().to_string())
         }
         _ => None
     };
@@ -107,7 +100,6 @@ pub fn create_token(claims: &Claims) -> Result<String> {
 /// secret: your secret string
 pub fn verify_token(token: &str) -> Result<Claims> {
     let validation = Validation::default();
-    debug!("verify_token {}", token);
     return match decode::<Claims>(
         token,
         &KEYS.decoding,
@@ -115,12 +107,12 @@ pub fn verify_token(token: &str) -> Result<Claims> {
     ) {
         Ok(c) => Ok(c.claims),
         Err(err) => match *err.kind() {
-            ErrorKind::InvalidToken => return Err(BadRequest::msg("你的登录已失效，请重新登录"))
-            , // Example on how to handle a specific error
-            ErrorKind::ExpiredSignature => return Err(BadRequest::msg("你的登录已失效，请重新登录"))
-            , // Example on how to handle a specific error
-            _ => return Err(BadRequest::msg(err.to_string().as_str()))
-            ,
+            ErrorKind::InvalidToken => return Err(BadRequest::msg("你的登录已失效，请重新登录")),
+            ErrorKind::ExpiredSignature => return Err(BadRequest::msg("你的登录已失效，请重新登录")),
+            _ => return {
+                debug_print!("{:?}", err);
+                Err(BadRequest::msg(format!("其他错误：{:?}", err).as_str()))
+            }
         },
     };
 }
@@ -137,7 +129,6 @@ pub async fn authorize(payload: AuthPayload, token_id: String) -> Result<AuthBod
         name: payload.name,
         exp: exp.timestamp(),
     };
-    debug!("authorize claims: {:?}", claims);
     // Create the authorization token
     let token = create_token(&claims)?;
 
@@ -203,9 +194,6 @@ mod test {
         let res = create_token(&claims).unwrap();
         println!("{:?}", res);
         let res = verify_token(&res).unwrap();
-        println!("{:?}", res);
-        let token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjAwVVQ5Sjc4UFNVNVFKUkUzSFNEVUc5NFIyIiwidG9rZW5faWQiOiIwMTFCTjBURFNONkM5UUhHQjhIODlFR0RVQSIsIm5hbWUiOiJ1c2VyIiwiZXhwIjoxNjUwMzU0MjUyfQ.c0w9z5xZ192uJ1M6ijkmvOXsBRg8_rzqJ28sfyE9P7Q011BN0TDSN6C9QHGB8H89EGDUA";
-        let res = verify_token(token).unwrap();
         println!("{:?}", res);
 
     }

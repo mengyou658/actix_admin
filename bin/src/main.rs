@@ -13,11 +13,12 @@ use actix_web::dev::JsonBody::Body;
 use actix_web::dev::ServiceResponse;
 use actix_web::http::{header, StatusCode};
 use actix_web::middleware::{ErrorHandlerResponse, ErrorHandlers};
-//
+use actix_cors::Cors;
 
 use tracing_subscriber::{fmt, layer::SubscriberExt, EnvFilter, Registry};
 use app::middleware::handler::{get_error_handlers, get_json_config};
 use db::common::res::Res;
+use backtrace::Backtrace;
 
 // 路由日志追踪
 
@@ -75,15 +76,17 @@ async fn main() -> Result<(), std::io::Error> {
         //     .error_handler(|err, req| {
         //         error::InternalError::from_response(err, HttpResponse::Conflict().into()).into()
         //     });
-
+        let bt = Backtrace::new();
         App::new()
             .app_data(get_json_config())
+            .app_data(bt.clone())
             // 跨域
             .wrap(middleware::DefaultHeaders::new()
                 .add(("Access-Control-Allow-Origin", "*"))
                 .add(("Access-Control-Allow-Method", "GET,POST,PUT,DELETE,OPTIONS"))
                 .add(("Access-Control-Allow-Credentials", "true"))
             )
+            // 错误处理
             .wrap(get_error_handlers())
             // 静态资源
             .service(Files::new(&CFG.web.upload_url, &CFG.web.upload_dir).prefer_utf8(true))
