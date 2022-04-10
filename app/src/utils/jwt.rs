@@ -55,8 +55,9 @@ impl Claims {
         let token_v = get_bear_token(req).await.unwrap();
         let claims = verify_token(token_v.as_str())?;
         let token_id = claims.token_id.clone();
-        let (x, _) = check_user_online(None, token_id).await;
-        if !x {
+        debug!("Current user {:?}" , claims);
+        let x = check_user_online(None, token_id).await;
+        if !x.is_ok() {
             return Err(BadRequest::msg("该账户已经退出"));
         }
         Ok(claims)
@@ -100,6 +101,7 @@ pub fn create_token(claims: &Claims) -> Result<String> {
 /// secret: your secret string
 pub fn verify_token(token: &str) -> Result<Claims> {
     let validation = Validation::default();
+    debug!("verify_token {}", token);
     return match decode::<Claims>(
         token,
         &KEYS.decoding,

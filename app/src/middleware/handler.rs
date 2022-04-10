@@ -39,7 +39,7 @@ fn common_error<B>(mut res: dev::ServiceResponse<B>) -> actix_web::Result<ErrorH
         header::CONTENT_TYPE,
         header::HeaderValue::from_static("text/json;charset=UTF-8"),
     );
-    let bt = match res.request().extensions().get::<Backtrace>() {
+    let bt = match res.request().app_data::<Backtrace>(){
         Some(t) => t.clone(),
         None => Backtrace::new(),
     };
