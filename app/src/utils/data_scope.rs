@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use db::common::errors::{Error, Result, BadRequest};
 use db::{
     common::data_scope::DataScopeInfo,
     system::entities::{sys_dept, sys_role, sys_role_dept, sys_user},
@@ -26,7 +26,7 @@ pub async fn get_data_scope_user_ids(db: &DatabaseConnection, uid: &str) -> Resu
         .await?;
     let (user_id, dept_id, role_id, data_scope) = match s {
         Some(x) => (x.id, x.dept_id, x.role_id, x.data_scope),
-        None => return Err(anyhow!("用户不存在")),
+        None => return Err(BadRequest::msg("用户不存在")),
     };
 
     // 数据范围

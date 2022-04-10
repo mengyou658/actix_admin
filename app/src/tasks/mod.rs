@@ -5,7 +5,7 @@ mod task_runner;
 use std::sync::Arc;
 
 use ahash::AHashMap as HashMap;
-use anyhow::{anyhow, Result};
+use db::common::errors::{Error, Result, BadRequest};
 use chrono::NaiveDateTime;
 use db::{db_conn, system::SysJobModel, DB};
 use once_cell::sync::Lazy;
@@ -38,7 +38,7 @@ pub async fn timer_task_init() -> Result<()> {
     let db = DB.get_or_init(db_conn).await;
     let task_list = match system::get_active_job(db).await {
         Ok(x) => x,
-        Err(e) => return Err(anyhow!("{:#?}", e)),
+        Err(e) => return Err(BadRequest::msg(format!("{:#?}", e).as_str())),
     };
     // 初始化任务
     for t in task_list {
@@ -74,7 +74,7 @@ pub async fn run_circles_task(job_id: String) -> Result<()> {
     let db = DB.get_or_init(db_conn).await;
     let t = match system::get_job_by_id(db, job_id).await {
         Ok(x) => x,
-        Err(e) => return Err(anyhow!("{:#?}", e)),
+        Err(e) => return Err(BadRequest::msg(format!("{:#?}", e).as_str())),
     };
     task_runner::add_circles_task(t).await?;
     Ok(())
@@ -84,7 +84,7 @@ pub async fn update_circles_task(job_id: String) -> Result<()> {
     let db = DB.get_or_init(db_conn).await;
     let t = match system::get_job_by_id(db, job_id).await {
         Ok(x) => x,
-        Err(e) => return Err(anyhow!("{:#?}", e)),
+        Err(e) => return Err(BadRequest::msg(format!("{:#?}", e).as_str())),
     };
     tracing::info!("开始更新任务 {}", &t.job_name);
     task_runner::update_circles_task(t).await?;

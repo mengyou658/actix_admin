@@ -5,7 +5,7 @@ use crate::utils::ApiUtils;
 
 use std::future::{ready, Ready};
 
-use anyhow::{anyhow, Result};
+use db::common::errors::{Result, BadRequest};
 use actix_web::{dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform}, Error, HttpMessage};
 use actix_web::dev::Payload;
 use actix_web::error::ErrorBadRequest;

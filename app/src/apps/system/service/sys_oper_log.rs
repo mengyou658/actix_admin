@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use db::common::errors::{Error, Result, BadRequest};
 use chrono::NaiveDateTime;
 use db::{
     common::res::{ListData, PageParams},
@@ -75,10 +75,10 @@ pub async fn delete(db: &DatabaseConnection, delete_req: DeleteReq) -> Result<St
     s = s.filter(sys_oper_log::Column::OperId.is_in(delete_req.oper_log_ids));
 
     // 开始删除
-    let d = s.exec(db).await.map_err(|e| anyhow!(e.to_string()))?;
+    let d = s.exec(db).await.map_err(|e| BadRequest::msg(e.to_string().as_str()))?;
 
     match d.rows_affected {
-        0 => Err(anyhow!("你要删除的日志不存在".to_string(),)),
+        0 => Err(BadRequest::msg("你要删除的日志不存在")),
 
         i => Ok(format!("成功删除{}条数据", i)),
     }
@@ -99,7 +99,7 @@ pub async fn get_by_id(db: &DatabaseConnection, oper_id: String) -> Result<sys_o
 
     let res = match s {
         Some(m) => m,
-        None => return Err(anyhow!("没有找到数据")),
+        None => return Err(BadRequest::msg("没有找到数据")),
     };
     Ok(res)
 }

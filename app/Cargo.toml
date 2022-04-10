@@ -27,7 +27,7 @@ once_cell = "1.9.0"
 # poem-openapi = "1.1.1"
 #web server
 actix-web = "4"
-#actix-http = "3"
+actix-http = "3"
 # 静态文件服务
 actix-files = "0"
 actix-identity = "0"
@@ -58,7 +58,7 @@ tracing-appender = "0.2"
 tracing-subscriber = {version = "0.3", features = ["json", "env-filter", "local-time", "registry"]}
 
 # 计划任务
-delay_timer = {version = "0.11.0"}
+delay_timer = {version = "0.11"}
 reqwest = {version = "0.11", features = ["json"]}
 user-agent-parser = "0.3"
 

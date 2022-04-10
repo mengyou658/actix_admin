@@ -1,7 +1,7 @@
 use actix_web::dev::ServiceRequest;
 use actix_web::HttpRequest;
 use actix_web::web::Query;
-use anyhow::{anyhow, Ok, Result};
+use db::common::errors::{Error, Result, BadRequest};
 use chrono::{Local, NaiveDateTime};
 use db::{
     common::res::{ListData, PageParams},
@@ -127,7 +127,7 @@ pub async fn get_sort_list(db: &DatabaseConnection, page_params: PageParams, req
                     status: v.status.clone(),
                 },
             },
-            None => return Err(anyhow!("{}无部门信息", m.0.user_name)),
+            None => return Err(BadRequest::msg(format!("{}无部门信息", m.0.user_name).as_str())),
         };
 
         list.push(user_dept);
@@ -220,9 +220,9 @@ pub async fn get_by_id(db: &DatabaseConnection, user_id: &str) -> Result<UserWit
                     status: v.status,
                 },
             },
-            None => return Err(anyhow!("{}无部门信息", user_id)),
+            None => return Err(BadRequest::msg(format!("{}无部门信息", user_id).as_str())),
         },
-        None => return Err(anyhow!("用户不存在")),
+        None => return Err(BadRequest::msg("用户不存在")),
     };
 
     Ok(user)
@@ -295,11 +295,11 @@ pub async fn reset_passwd(db: &DatabaseConnection, req: ResetPwdReq) -> Result<S
 
 pub async fn update_passwd(db: &DatabaseConnection, req: UpdatePwdReq, user_id: &str) -> Result<String> {
     match SysUser::find().filter(sys_user::Column::Id.eq(user_id)).one(db).await? {
-        None => return Err(anyhow!("用户不存在")),
+        None => return Err(BadRequest::msg("用户不存在")),
         Some(x) => {
             let pwd = utils::encrypt_password(&req.old_passwd, &x.user_salt);
             match pwd == x.user_password {
-                false => return Err(anyhow!("旧密码错误,请检查重新输入")),
+                false => return Err(BadRequest::msg("旧密码错误,请检查重新输入")),
                 true => {}
             }
         }
@@ -416,7 +416,7 @@ pub async fn delete(db: &DatabaseConnection, req: DeleteReq) -> Result<String> {
 
     txn.commit().await?;
     return match d.rows_affected {
-        0 => Err(anyhow!("用户不存在")),
+        0 => Err(BadRequest::msg("用户不存在")),
         i => Ok(format!("成功删除{}条用户数据", i)),
     };
 }
@@ -471,7 +471,7 @@ pub async fn login(db: &DatabaseConnection, login_req: UserLoginReq, req: HttpRe
         msg = "验证码错误".to_string();
         status = "0".to_string();
         set_login_info(req, "".to_string(), login_req.user_name.clone(), msg.clone(), status.clone(), None, None).await;
-        return Err(anyhow!("验证码错误"));
+        return Err(BadRequest::msg("验证码错误"));
     }
     // 根据用户名获取用户信息
     let user = match SysUser::find().filter(sys_user::Column::UserName.eq(login_req.user_name.clone())).one(db).await? {
@@ -480,7 +480,7 @@ pub async fn login(db: &DatabaseConnection, login_req: UserLoginReq, req: HttpRe
                 msg = "用户已被禁用".to_string();
                 status = "0".to_string();
                 set_login_info(req, "".to_string(), login_req.user_name.clone(), msg.clone(), status.clone(), None, None).await;
-                return Err(anyhow!("用户已被禁用"));
+                return Err(BadRequest::msg("用户已被禁用"));
             } else {
                 user
             }
@@ -489,7 +489,7 @@ pub async fn login(db: &DatabaseConnection, login_req: UserLoginReq, req: HttpRe
             msg = "用户不存在".to_string();
             status = "0".to_string();
             set_login_info(req, "".to_string(), login_req.user_name.clone(), msg.clone(), status.clone(), None, None).await;
-            return Err(anyhow!("用户不存在"));
+            return Err(BadRequest::msg("用户不存在"));
         }
     };
     //  验证密码是否正确
@@ -497,7 +497,7 @@ pub async fn login(db: &DatabaseConnection, login_req: UserLoginReq, req: HttpRe
         msg = "密码错误".to_string();
         status = "0".to_string();
         set_login_info(req, "".to_string(), login_req.user_name.clone(), msg.clone(), status.clone(), None, None).await;
-        return Err(anyhow!("密码不正确"));
+        return Err(BadRequest::msg("密码不正确"));
     };
     // 注册JWT
     let claims = AuthPayload {

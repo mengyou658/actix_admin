@@ -1,4 +1,4 @@
-use anyhow::Result;
+use db::common::errors::{Error, Result, BadRequest};
 use chrono::Local;
 use db::system::{entities::sys_role_api, models::sys_role_api::AddReq};
 use sea_orm::{sea_query::Expr, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter, Set, TransactionTrait, UpdateResult};
@@ -45,7 +45,6 @@ where
         .filter(sys_role_api::Column::Api.eq(old_api.0))
         .filter(sys_role_api::Column::Method.eq(old_api.1))
         .exec(db)
-        .await
-        .map_err(|e| anyhow::anyhow!("{}", e))?;
+        .await?;
     Ok(res)
 }

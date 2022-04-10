@@ -7,10 +7,10 @@
 //! 所有参数有对应的结构体类型，并实现`Deserialize`,或者为基本类型
 //!
 //! 返回值分别为 Result<T, anyhow::Error> T为string类型, 可以直接转换为json
-//!  
+//!
 //! 自动任务的返回值无法返回，只能作为任务记录
 
-use anyhow::{anyhow, Result};
+use db::common::errors::{Error, Result, BadRequest};
 use serde::Deserialize;
 
 /// 无参数测试
@@ -25,7 +25,7 @@ pub fn test_b(params: Option<String>) -> Result<String> {
         Some(x) => x,
         None => {
             println!("参数为空");
-            return Err(anyhow!("参数为空, 请检查参数"));
+            return Err(BadRequest::msg("参数为空, 请检查参数"));
         }
     };
     println!("-----------test_b-----------参数为: {}", param);
@@ -45,7 +45,7 @@ pub fn test_c(params: Option<String>) -> Result<String> {
         Some(x) => x,
         None => {
             println!("参数为空");
-            return Err(anyhow!("参数为空, 请检查参数"));
+            return Err(BadRequest::msg("参数为空, 请检查参数"));
         }
     };
     println!("-----------test_c-----------参数为: {}", param);
@@ -53,7 +53,7 @@ pub fn test_c(params: Option<String>) -> Result<String> {
         Ok(x) => x,
         Err(e) => {
             println!("参数解析失败:{}", e);
-            return Err(anyhow!("参数解析失败,请检查参数格式,参数为{}", param));
+            return Err(BadRequest::msg(format!("参数解析失败,请检查参数格式,参数为{}", param).as_str()));
         }
     };
     println!("简单参数函数测试,参数为: {:#?},a的值{}", pp, pp.a);

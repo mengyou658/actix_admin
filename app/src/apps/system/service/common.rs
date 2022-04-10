@@ -1,5 +1,5 @@
 use actix_multipart::Multipart;
-use anyhow::Result;
+use db::common::errors::{Error, Result, BadRequest};
 use captcha_rust::Captcha;
 use configs::CFG;
 use db::common::captcha::CaptchaImage;
@@ -55,7 +55,7 @@ pub async fn upload_file(mut multipart: Multipart) -> Result<String> {
     // }
     return Ok(url_path);
   }
-  Err(anyhow::anyhow!("上传文件失败"))
+  Err(BadRequest::msg("上传文件失败"))
 }
 
 /// 删除文件

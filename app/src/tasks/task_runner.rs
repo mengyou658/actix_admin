@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use anyhow::{anyhow, Result};
+use db::common::errors::{Error, Result, BadRequest};
 use chrono::{Local, NaiveDateTime};
 use db::{
     db_conn,
@@ -70,11 +70,11 @@ pub async fn add_circles_task(t: SysJobModel) -> Result<()> {
                 }
                 Err(e) => {
                     drop(t_builder);
-                    return Err(anyhow!("{:#?}", e));
+                    return Err(BadRequest::msg(format!("{:#?}", e).as_str()));
                 }
             };
         }
-        Err(e) => return Err(anyhow!("{:#?}", e)),
+        Err(e) => return Err(BadRequest::msg(format!("{:#?}", e).as_str())),
     };
     Ok(())
 }
@@ -125,11 +125,11 @@ pub async fn update_circles_task(t: SysJobModel) -> Result<()> {
                 }
                 Err(e) => {
                     drop(t_builder);
-                    return Err(anyhow!("{:#?}", e));
+                    return Err(BadRequest::msg(format!("{:#?}", e).as_str()));
                 }
             };
         }
-        Err(e) => return Err(anyhow!("{:#?}", e)),
+        Err(e) => return Err(BadRequest::msg(format!("{:#?}", e).as_str())),
     };
     Ok(())
 }
@@ -286,7 +286,7 @@ pub async fn delete_job(task_id: i64, is_manual: bool) -> Result<()> {
         },
         Err(e) => {
             drop(t_builder);
-            return Err(anyhow!("delete task failed, {}", e.to_string()));
+            return Err(BadRequest::msg(format!("delete task failed, {}", e.to_string()).as_str()));
         }
     };
 

@@ -64,6 +64,7 @@ dependencies = [
 name = "actix-admin"
 version = "0.1.0"
 dependencies = [
+ "actix-cors",
  "actix-files",
  "actix-form-data",
  "actix-identity",
@@ -73,6 +74,7 @@ dependencies = [
  "app",
  "configs",
  "db",
+ "mime",
  "tokio 1.17.0",
  "tracing 0.1.32",
  "tracing-appender",
@@ -129,6 +131,21 @@ dependencies = [
  "log",
  "trust-dns-proto",
  "trust-dns-resolver",
+]
+
+[[package]]
+name = "actix-cors"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "414360eed71ba2d5435b185ba43ecbe281dfab5df3898286d6b7be8074372c92"
+dependencies = [
+ "actix-utils 3.0.0",
+ "actix-web 4.0.1",
+ "derive_more",
+ "futures-util",
+ "log",
+ "once_cell",
+ "smallvec",
 ]
 
 [[package]]
@@ -767,6 +784,7 @@ version = "0.1.0"
 dependencies = [
  "actix-files",
  "actix-form-data",
+ "actix-http 3.0.4",
  "actix-identity",
  "actix-multipart",
  "actix-storage",
@@ -1614,6 +1632,7 @@ dependencies = [
  "anyhow",
  "chrono",
  "configs",
+ "delay_timer",
  "derive_more",
  "mime",
  "once_cell",

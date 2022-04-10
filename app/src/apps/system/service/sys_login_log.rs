@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use db::common::errors::{Error, Result, BadRequest};
 use chrono::{Local, NaiveDateTime};
 use db::{
     common::{
@@ -90,7 +90,7 @@ pub async fn delete(db: &DatabaseConnection, delete_req: DeleteReq) -> Result<St
     let d = s.exec(db).await?;
 
     match d.rows_affected {
-        0 => Err(anyhow!("删除失败,数据不存在",)),
+        0 => Err(BadRequest::msg("删除失败,数据不存在",)),
         i => Ok(format!("成功删除{}条数据", i)),
     }
 }

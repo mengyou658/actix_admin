@@ -4,7 +4,7 @@ use actix_web::web;
 use actix_files::Files;
 use actix_web::http::StatusCode;
 use actix_web::web::service;
-use anyhow::anyhow;
+use db::common::errors::{Error, Result, BadRequest};
 use db::common::ctx::UserInfo;
 use db::common::errors;
 

@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use db::common::errors::{Error, Result, BadRequest};
 use chrono::{Local, NaiveDateTime};
 use db::{
     common::res::{ListData, PageParams},
@@ -91,7 +91,7 @@ pub async fn eidt_check_data_is_exist(post_id: String, post_code: String, post_n
 pub async fn add(db: &DatabaseConnection, req: AddReq, user_id: String) -> Result<String> {
     //  检查字典类型是否存在
     if check_data_is_exist(req.clone().post_code, req.clone().post_name, db).await? {
-        return Err(anyhow!("数据已存在"));
+        return Err(BadRequest::msg("数据已存在"));
     }
 
     let uid = scru128::scru128().to_string();
@@ -123,7 +123,7 @@ pub async fn delete(db: &DatabaseConnection, delete_req: DeleteReq) -> Result<St
     let d = s.exec(db).await?;
 
     match d.rows_affected {
-        0 => Err(anyhow!("删除失败,数据不存在")),
+        0 => Err(BadRequest::msg("删除失败,数据不存在")),
         i => Ok(format!("成功删除{}条数据", i)),
     }
 }
@@ -132,7 +132,7 @@ pub async fn delete(db: &DatabaseConnection, delete_req: DeleteReq) -> Result<St
 pub async fn edit(db: &DatabaseConnection, req: EditReq, user_id: String) -> Result<String> {
     //  检查字典类型是否存在
     if eidt_check_data_is_exist(req.post_id.clone(), req.post_code.clone(), req.post_name.clone(), db).await? {
-        return Err(anyhow!("数据已存在"));
+        return Err(BadRequest::msg("数据已存在"));
     }
     sys_post::Entity::update_many()
         .col_expr(sys_post::Column::PostCode, Expr::value(req.post_code))
@@ -158,12 +158,12 @@ pub async fn get_by_id(db: &DatabaseConnection, search_req: SearchReq) -> Result
     if let Some(x) = search_req.post_id {
         s = s.filter(sys_post::Column::PostId.eq(x));
     } else {
-        return Err(anyhow!("请求参数错误"));
+        return Err(BadRequest::msg("请求参数错误"));
     }
 
     let res = match s.into_model::<Resp>().one(db).await? {
         Some(m) => m,
-        None => return Err(anyhow!("数据不存在")),
+        None => return Err(BadRequest::msg("数据不存在")),
     };
 
     // let result: Resp =

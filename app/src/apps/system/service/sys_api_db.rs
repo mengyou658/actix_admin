@@ -1,4 +1,5 @@
-use anyhow::Result;
+use db::common::errors::{Error, Result, BadRequest};
+
 use db::system::{
     entities::{prelude::SysApiDb, sys_api_db},
     models::sys_api_db::AddEditReq,

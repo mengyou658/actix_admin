@@ -125,12 +125,12 @@ async fn get_insert_sql_string(path: PathBuf, db_end: DatabaseBackend) -> Result
     let mut sql_string = String::new();
     let file = match File::open(path).await {
         Ok(x) => x,
-        Err(e) => return Err(anyhow!("读取文件失败:{:?}", e.to_string())),
+        Err(e) => return Err(BadRequest::msg("读取文件失败:{:?}", e.to_string())),
     };
     let mut buf_reader = BufReader::new(file).lines();
     while let Some(line) = buf_reader.next().await {
         match line {
-            Err(e) => return Err(anyhow!("读取行数据失败:{:?}", e.to_string())),
+            Err(e) => return Err(BadRequest::msg("读取行数据失败:{:?}", e.to_string())),
             Ok(v) => {
                 if v.starts_with("/*!") || v.starts_with("--") {
                     continue;

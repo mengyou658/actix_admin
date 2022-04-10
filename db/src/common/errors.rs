@@ -81,8 +81,40 @@ impl ResponseError for Error {
 
 }
 
+impl From<actix_multipart::MultipartError> for Error {
+  fn from(err: actix_multipart::MultipartError) -> Error {
+    BadRequest::msg(err.to_string().as_str())
+  }
+}
+impl From<delay_timer::error::TaskError> for Error {
+  fn from(err: delay_timer::error::TaskError) -> Error {
+    BadRequest::msg(err.to_string().as_str())
+  }
+}
+impl From<std::io::Error> for Error {
+  fn from(err: std::io::Error) -> Error {
+    BadRequest::msg(err.to_string().as_str())
+  }
+}
 impl From<anyhow::Error> for Error {
   fn from(err: anyhow::Error) -> Error {
+    BadRequest::msg(err.to_string().as_str())
+  }
+}
+// impl<T> From<T> for Error
+//     where T: std::error::Error + Error
+// {
+//   fn from(err: T) -> Error {
+//     BadRequest::msg(err.to_string().as_str())
+//   }
+// }
+impl From<chrono::ParseError> for Error {
+  fn from(err: chrono::ParseError) -> Error {
+    BadRequest::msg(err.to_string().as_str())
+  }
+}
+impl From<sea_orm::DbErr> for Error {
+  fn from(err: sea_orm::DbErr) -> Error {
     BadRequest::msg(err.to_string().as_str())
   }
 }

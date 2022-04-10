@@ -1,4 +1,4 @@
-use anyhow::Result;
+use db::common::errors::{Error, Result, BadRequest};
 use chrono::Local;
 use db::system::entities::sys_user_dept;
 use sea_orm::{ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter, Set, TransactionTrait};

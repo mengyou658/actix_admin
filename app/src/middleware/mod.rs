@@ -1,5 +1,6 @@
 // 菜单授权
 pub mod auth;
+pub mod handler;
 // 请求上下文，日志记录
 // 操作日志
 

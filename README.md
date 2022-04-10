@@ -47,6 +47,7 @@
 ## 待完成
 
 - [ ] 性能优化；
+- [x] 统一错误处理
 - [x] 替换poem
   - [ ] middle log
   - [ ] middle ctx

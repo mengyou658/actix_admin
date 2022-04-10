@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use db::common::errors::{Error, Result, BadRequest};
 use chrono::{Local, NaiveDateTime};
 use db::{
     common::res::{ListData, PageParams},
@@ -88,7 +88,7 @@ where
 {
     //  检查字典类型是否存在
     if check_job_add_is_exist(db, &req.job_name, req.task_id).await? {
-        return Err(anyhow!("任务已存在",));
+        return Err(BadRequest::msg("任务已存在",));
     }
     let uid = scru128::scru128_string();
     let now: NaiveDateTime = Local::now().naive_local();
@@ -137,11 +137,11 @@ pub async fn delete(db: &DatabaseConnection, delete_req: DeleteReq) -> Result<St
         .filter(sys_job::Column::JobId.is_in(job_ids.clone()))
         .exec(db)
         .await
-        .map_err(|e| anyhow!(e.to_string(),))?;
+        .map_err(|e| BadRequest::msg(e.to_string().as_str()))?;
 
     match d.rows_affected {
         // 0 => return Err("你要删除的字典类型不存在".into()),
-        0 => Err(anyhow!("你要删除的字典类型不存在",)),
+        0 => Err(BadRequest::msg("你要删除的字典类型不存在",)),
 
         i => Ok(format!("成功删除{}条数据", i)),
     }
@@ -151,7 +151,7 @@ pub async fn delete(db: &DatabaseConnection, delete_req: DeleteReq) -> Result<St
 pub async fn edit(db: &DatabaseConnection, req: EditReq, user_id: String) -> Result<String> {
     //  检查字典类型是否存在
     if check_job_edit_is_exist(db, &req.job_name, req.task_id, &req.job_id).await? {
-        return Err(anyhow!("任务已存在",));
+        return Err(BadRequest::msg("任务已存在",));
     }
     let uid = req.job_id;
     let s_s = get_by_id(db, uid.clone()).await?;
@@ -214,7 +214,7 @@ where
 
     let res = match s {
         Some(m) => m,
-        None => return Err(anyhow!("没有找到数据",)),
+        None => return Err(BadRequest::msg("没有找到数据",)),
     };
     Ok(res)
 }
@@ -246,7 +246,7 @@ pub async fn set_status(db: &DatabaseConnection, req: StatusReq) -> Result<Strin
         "0" => {
             tasks::delete_job(job.clone().task_id, true).await.expect("任务删除失败");
         }
-        _ => return Err(anyhow!("状态值错误",)),
+        _ => return Err(BadRequest::msg("状态值错误",)),
     };
     Ok(format!("{}修改成功", req.job_id))
 }

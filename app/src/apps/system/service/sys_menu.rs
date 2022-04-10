@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use db::common::errors::{Error, Result, BadRequest};
 use chrono::{Local, NaiveDateTime};
 use db::{
     common::res::{ListData, PageParams},
@@ -116,7 +116,7 @@ where
 {
     //  检查数据是否存在
     if check_router_is_exist_add(db, req.clone()).await? {
-        return Err(anyhow!("路径或者名称重复"));
+        return Err(BadRequest::msg("路径或者名称重复"));
     }
     let reqq = req.clone();
     let uid = scru128::scru128().to_string();
@@ -167,7 +167,7 @@ pub async fn delete(db: &DatabaseConnection, id: &str) -> Result<String> {
             txn.commit().await?;
             Ok("菜单删除成功".to_string())
         }
-        _ => Err(anyhow!("请先删除子菜单")),
+        _ => Err(BadRequest::msg("请先删除子菜单")),
     }
 }
 
@@ -175,12 +175,12 @@ pub async fn delete(db: &DatabaseConnection, id: &str) -> Result<String> {
 pub async fn edit(db: &DatabaseConnection, req: EditReq) -> Result<String> {
     //  检查数据是否存在
     if check_router_is_exist_update(db, req.clone()).await? {
-        return Err(anyhow!("路径或者名称重复"));
+        return Err(BadRequest::msg("路径或者名称重复"));
     }
     let uid = req.id;
     let s_s = match SysMenu::find_by_id(uid.clone()).one(db).await? {
         Some(s) => s,
-        None => return Err(anyhow!("菜单不存在")),
+        None => return Err(BadRequest::msg("菜单不存在")),
     };
     let s_y = s_s.clone();
     let s_r: sys_menu::ActiveModel = s_s.into();
@@ -243,12 +243,12 @@ pub async fn get_by_id(db: &DatabaseConnection, search_req: SearchReq) -> Result
     if let Some(x) = search_req.id {
         s = s.filter(sys_menu::Column::Id.eq(x));
     } else {
-        return Err(anyhow!("请求参数错误"));
+        return Err(BadRequest::msg("请求参数错误"));
     }
 
     let res = match s.into_model::<MenuResp>().one(db).await? {
         Some(m) => m,
-        None => return Err(anyhow!("数据不存在")),
+        None => return Err(BadRequest::msg("数据不存在")),
     };
 
     Ok(res)
@@ -420,11 +420,11 @@ pub async fn get_related_api_and_db(db: &DatabaseConnection, page_params: PagePa
 
         let dbs = match dbs_model {
             Ok(v) => v.iter().map(|x| x.db.clone()).collect::<Vec<String>>(),
-            Err(e) => return Err(anyhow!("{}", e)),
+            Err(e) => return Err(BadRequest::msg(format!("{}", e).as_str())),
         };
         let apis = match apis {
             Ok(v) => v,
-            Err(e) => return Err(anyhow!("{}", e)),
+            Err(e) => return Err(BadRequest::msg(format!("{:?}", e).as_str())),
         };
         res.push(MenuRelated { menu: item, dbs, apis });
     }

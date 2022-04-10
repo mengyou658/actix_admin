@@ -86,7 +86,6 @@ impl<T: Serialize> Res<T> {
     }
   }
 
-
   pub fn resp_json(&self) -> HttpResponse<String>
   {
     let mut response = HttpResponse::<String>::with_body(StatusCode::OK, serde_json::to_string(self).unwrap());

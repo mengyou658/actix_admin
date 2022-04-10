@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use db::common::errors::{Error, Result, BadRequest};
 use chrono::{Local, NaiveDateTime};
 use db::{
     common::res::{ListData, PageParams},
@@ -73,7 +73,7 @@ where
 {
     //  检查字典类型是否存在
     if check_dict_type_is_exist(&req.dict_type, db).await? {
-        return Err(anyhow!("字典类型已存在"));
+        return Err(BadRequest::msg("字典类型已存在"));
     }
     let uid = scru128::scru128_string();
     let now: NaiveDateTime = Local::now().naive_local();
@@ -108,7 +108,7 @@ pub async fn delete(db: &DatabaseConnection, delete_req: DeleteReq) -> Result<St
         .count(db)
         .await?;
     if count > 0 {
-        return Err(anyhow!("存在关联数据，不能删除,请先删除关联字典数据"));
+        return Err(BadRequest::msg("存在关联数据，不能删除,请先删除关联字典数据"));
     }
     let txn = db.begin().await?;
     let mut s = SysDictType::delete_many();
@@ -121,7 +121,7 @@ pub async fn delete(db: &DatabaseConnection, delete_req: DeleteReq) -> Result<St
 
     match d.rows_affected {
         // 0 => return Err("你要删除的字典类型不存在".into()),
-        0 => Err(anyhow!("你要删除的字典类型不存在")),
+        0 => Err(BadRequest::msg("你要删除的字典类型不存在")),
 
         i => Ok(format!("成功删除{}条数据", i)),
     }
@@ -149,12 +149,12 @@ pub async fn get_by_id(db: &DatabaseConnection, req: SearchReq) -> Result<sys_di
     if let Some(x) = req.dict_type_id {
         s = s.filter(sys_dict_type::Column::DictTypeId.eq(x));
     } else {
-        return Err(anyhow!("请求参数错误,请输入Id"));
+        return Err(BadRequest::msg("请求参数错误,请输入Id"));
     }
 
     let res = match s.one(db).await? {
         Some(m) => m,
-        None => return Err(anyhow!("没有找到数据")),
+        None => return Err(BadRequest::msg("没有找到数据")),
     };
     Ok(res)
 }

@@ -1,4 +1,5 @@
-use anyhow::{anyhow, Result};
+use db::common::errors::{Error, Result, BadRequest};
+
 use chrono::{Local, NaiveDateTime};
 use db::{
     common::res::{ListData, PageParams},
@@ -78,7 +79,7 @@ pub async fn check_data_is_exist(dept_name: String, db: &DatabaseConnection) -> 
 pub async fn add(db: &DatabaseConnection, req: AddReq, user_id: String) -> Result<String> {
     //  检查字典类型是否存在
     if check_data_is_exist(req.clone().dept_name, db).await? {
-        return Err(anyhow!("数据已存在",));
+        return Err(BadRequest::msg("数据已存在",));
     }
 
     let uid = scru128::scru128().to_string();
@@ -110,7 +111,7 @@ pub async fn delete(db: &DatabaseConnection, req: DeleteReq) -> Result<String> {
     let d = SysDept::delete_many().filter(sys_dept::Column::DeptId.eq(req.dept_id)).exec(db).await?;
 
     match d.rows_affected {
-        0 => Err(anyhow!("删除失败,数据不存在",)),
+        0 => Err(BadRequest::msg("删除失败,数据不存在",)),
         i => Ok(format!("成功删除{}条数据", i)),
     }
 }
@@ -124,7 +125,7 @@ pub async fn edit(db: &DatabaseConnection, req: EditReq, user_id: String) -> Res
         .count(db)
         .await?;
     if s1 > 0 {
-        return Err(anyhow!("数据已存在",));
+        return Err(BadRequest::msg("数据已存在",));
     }
     let uid = req.dept_id;
     let s_s = SysDept::find_by_id(uid.clone()).one(db).await?;
@@ -156,7 +157,7 @@ where
 
     let res = match s.into_model::<DeptResp>().one(db).await? {
         Some(m) => m,
-        None => return Err(anyhow!("数据不存在",)),
+        None => return Err(BadRequest::msg("数据不存在",)),
     };
 
     Ok(res)

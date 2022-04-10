@@ -1,9 +1,9 @@
 // use crate::RT;
 
 use std::sync::Arc;
+use db::common::errors::{Error, Result, BadRequest};
 
 use delay_timer::{
-    anyhow::Result,
     entity::DelayTimer,
     prelude::*,
     timer::task::{ScheduleIteratorTimeZone::Utc, Task},

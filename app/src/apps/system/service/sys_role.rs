@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use anyhow::{anyhow, Result};
+use db::common::errors::{Error, Result, BadRequest};
 use chrono::{Local, NaiveDateTime};
 use db::{
     common::res::{ListData, PageParams},
@@ -75,7 +75,7 @@ pub async fn check_data_is_exist(role_name: String, db: &DatabaseConnection) -> 
 pub async fn add(db: &DatabaseConnection, req: AddReq, user_id: &str) -> Result<String> {
     //  检查字典类型是否存在
     if check_data_is_exist(req.clone().role_name, db).await? {
-        return Err(anyhow!("数据已存在，请检查后重试"));
+        return Err(BadRequest::msg("数据已存在，请检查后重试"));
     }
 
     // 开启事务
@@ -149,7 +149,7 @@ pub async fn delete(db: &DatabaseConnection, delete_req: DeleteReq) -> Result<St
     // 提交事务
     txn.commit().await?;
     match d.rows_affected {
-        0 => Err(anyhow!("删除失败,数据不存在")),
+        0 => Err(BadRequest::msg("删除失败,数据不存在")),
 
         i => return Ok(format!("成功删除{}条数据", i)),
     }
@@ -174,7 +174,7 @@ pub async fn eidt_check_data_is_exist(db: &DatabaseConnection, role_id: String, 
 pub async fn edit(db: &DatabaseConnection, req: EditReq, created_by: &str) -> Result<String> {
     //  检查字典类型是否存在
     if eidt_check_data_is_exist(db, req.clone().role_id, req.clone().role_name, req.clone().role_key).await? {
-        return Err(anyhow!("数据已存在"));
+        return Err(BadRequest::msg("数据已存在"));
     }
     // 开启事务
     let txn = db.begin().await?;
@@ -276,12 +276,12 @@ pub async fn get_by_id(db: &DatabaseConnection, req: SearchReq) -> Result<Resp> 
     if let Some(x) = req.role_id {
         s = s.filter(sys_role::Column::RoleId.eq(x));
     } else {
-        return Err(anyhow!("id不能为空"));
+        return Err(BadRequest::msg("id不能为空"));
     }
 
     let res = match s.into_model::<Resp>().one(db).await? {
         Some(m) => m,
-        None => return Err(anyhow!("数据不存在")),
+        None => return Err(BadRequest::msg("数据不存在")),
     };
 
     Ok(res)

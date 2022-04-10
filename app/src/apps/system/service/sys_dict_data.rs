@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use db::common::errors::{Error, Result, BadRequest};
 use chrono::{Local, NaiveDateTime};
 use db::{
     common::res::{ListData, PageParams},
@@ -82,7 +82,7 @@ where
 {
     //  检查字典类型是否存在
     if check_dict_data_is_exist(add_req.clone(), db).await? {
-        return Err(anyhow!("字典类型或者字典值或者字典标签已经存在"));
+        return Err(BadRequest::msg("字典类型或者字典值或者字典标签已经存在"));
     }
 
     let uid = scru128::scru128().to_string();
@@ -120,7 +120,7 @@ pub async fn delete(db: &DatabaseConnection, delete_req: DeleteReq) -> Result<St
     let d = s.exec(db).await?;
 
     match d.rows_affected {
-        0 => Err(anyhow!("你要删除的字典类型不存在",)),
+        0 => Err(BadRequest::msg("你要删除的字典类型不存在",)),
         i => Ok(format!("成功删除{}条数据", i)),
     }
 }
@@ -159,12 +159,12 @@ pub async fn get_by_id(db: &DatabaseConnection, search_req: SearchReq) -> Result
     if let Some(x) = search_req.dict_data_id {
         s = s.filter(sys_dict_data::Column::DictDataId.eq(x));
     } else {
-        return Err(anyhow!("请输入字典类型id",));
+        return Err(BadRequest::msg("请输入字典类型id",));
     }
 
     let res = match s.one(db).await? {
         Some(m) => m,
-        None => return Err(anyhow!("字典类型不存在",)),
+        None => return Err(BadRequest::msg("字典类型不存在",)),
     };
 
     Ok(res)
@@ -175,7 +175,7 @@ pub async fn get_by_type(db: &DatabaseConnection, search_req: SearchReq) -> Resu
     if let Some(x) = search_req.dict_type {
         s = s.filter(sys_dict_data::Column::DictType.eq(x));
     } else {
-        return Err(anyhow!("请输入字典类型",));
+        return Err(BadRequest::msg("请输入字典类型",));
     }
 
     let res = s.order_by_asc(sys_dict_data::Column::DictSort).all(db).await?;

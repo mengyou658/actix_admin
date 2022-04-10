@@ -2,7 +2,7 @@ use actix_multipart::Multipart;
 use actix_web::dev::ServiceRequest;
 use actix_web::HttpRequest;
 use actix_web::web::{Json, Query};
-use anyhow::Result;
+use db::common::errors::Result;
 use configs::CFG;
 use db::{
     common::res::{ListData, PageParams, Res},
