@@ -505,7 +505,7 @@ pub async fn login(db: &DatabaseConnection, login_req: UserLoginReq, req: HttpRe
         name: login_req.user_name.clone(), // 用户名
     };
     let token_id = scru128_string();
-    let token = utils::authorize(claims.clone(), token_id.clone()).await.unwrap();
+    let token = utils::authorize(claims.clone(), token_id.clone()).unwrap();
     debug!("authorize: {:?}", token);
     // 成功登录后
     //  写入登录日志
@@ -531,7 +531,7 @@ pub async fn fresh_token(user: Claims) -> Result<AuthBody> {
         id: user.clone().id,     // 用户id
         name: user.clone().name, // 用户名
     };
-    let token = utils::authorize(claims.clone(), user.clone().token_id).await.unwrap();
+    let token = utils::authorize(claims.clone(), user.clone().token_id).unwrap();
     // 成功登录后
     // 更新原始在线日志
     super::sys_user_online::update_online(user.clone().token_id, token.clone().exp).await?;

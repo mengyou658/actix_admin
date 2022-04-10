@@ -22,7 +22,7 @@ use backtrace::Backtrace;
 
 // 路由日志追踪
 
-#[tokio::main]
+#[actix_web::main]
 async fn main() -> Result<(), std::io::Error> {
     if std::env::var_os("RUST_LOG").is_none() {
         std::env::set_var("RUST_LOG", &CFG.log.log_level);

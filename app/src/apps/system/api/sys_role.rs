@@ -10,7 +10,7 @@ use db::{
     },
     DB,
 };
-use actix_web::web::{Json, Query};
+use actix_web::web::{Json, Query, ReqData};
 
 use super::super::service;
 use crate::utils::jwt::Claims;
@@ -29,7 +29,7 @@ pub async fn get_sort_list(Query(page_params): Query<PageParams>, Query(req): Qu
 
 /// add 添加
 
-pub async fn add(Json(req): Json<AddReq>, Query(user): Query<Claims>) -> Res<String> {
+pub async fn add(Json(req): Json<AddReq>, user: ReqData<Claims>) -> Res<String> {
     let db = DB.get_or_init(db_conn).await;
     let res = service::sys_role::add(db, req, &user.id).await;
     match res {
@@ -51,7 +51,7 @@ pub async fn delete(Json(delete_req): Json<DeleteReq>) -> Res<String> {
 
 // edit 修改
 
-pub async fn edit(Json(edit_req): Json<EditReq>, Query(user): Query<Claims>) -> Res<String> {
+pub async fn edit(Json(edit_req): Json<EditReq>, user: ReqData<Claims>) -> Res<String> {
     let db = DB.get_or_init(db_conn).await;
     let res = service::sys_role::edit(db, edit_req, &user.id).await;
     match res {
@@ -175,18 +175,18 @@ pub async fn get_un_auth_users_by_role_id(Query(mut req): Query<UserSearchReq>, 
 
 // edit 修改
 
-pub async fn update_auth_role(Json(req): Json<UpdateAuthRoleReq>, Query(user): Query<Claims>) -> Res<String> {
+pub async fn update_auth_role(Json(req): Json<UpdateAuthRoleReq>, user: ReqData<Claims>) -> Res<String> {
     let db = DB.get_or_init(db_conn).await;
-    match service::sys_role::add_role_by_user_id(db, &req.user_id, req.role_ids, user.id).await {
+    match service::sys_role::add_role_by_user_id(db, &req.user_id, req.role_ids, user.id.clone()).await {
         Ok(_) => Res::with_msg("角色授权更新成功"),
         Err(e) => Res::with_err(&e.to_string()),
     }
 }
 
 
-pub async fn add_auth_user(Json(req): Json<AddOrCancelAuthRoleReq>, Query(user): Query<Claims>) -> Res<String> {
+pub async fn add_auth_user(Json(req): Json<AddOrCancelAuthRoleReq>, user: ReqData<Claims>) -> Res<String> {
     let db = DB.get_or_init(db_conn).await;
-    let res = service::sys_role::add_role_with_user_ids(db, req.clone().user_ids, req.role_id, user.id).await;
+    let res = service::sys_role::add_role_with_user_ids(db, req.clone().user_ids, req.role_id, user.id.clone()).await;
     match res {
         Ok(_) => Res::with_msg("授权成功"),
         Err(e) => Res::with_err(&e.to_string()),

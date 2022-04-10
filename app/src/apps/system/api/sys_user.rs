@@ -1,7 +1,8 @@
+use actix_http::Extensions;
 use actix_multipart::Multipart;
 use actix_web::dev::ServiceRequest;
-use actix_web::HttpRequest;
-use actix_web::web::{Json, Query};
+use actix_web::{HttpRequest, web};
+use actix_web::web::{Json, Query, Data, ReqData};
 use db::common::errors::Result;
 use configs::CFG;
 use db::{
@@ -45,7 +46,7 @@ pub async fn get_by_id(Query(req): Query<SearchReq>) -> Res<UserInfomaion> {
 }
 
 
-pub async fn get_profile(Query(user): Query<Claims>) -> Res<UserInfomaion> {
+pub async fn get_profile(user: ReqData<Claims>) -> Res<UserInfomaion> {
     match self::get_user_info_by_id(&user.id).await {
         Err(e) => Res::with_err(&e.to_string()),
         Ok(res) => Res::with_data(res),
@@ -74,9 +75,9 @@ pub async fn get_user_info_by_id(id: &str) -> Result<UserInfomaion> {
 
 /// add 添加
 
-pub async fn add(Json(add_req): Json<AddReq>, Query(user): Query<Claims>) -> Res<String> {
+pub async fn add(Json(add_req): Json<AddReq>, user: ReqData<Claims>) -> Res<String> {
     let db = DB.get_or_init(db_conn).await;
-    let res = service::sys_user::add(db, add_req, user.id).await;
+    let res = service::sys_user::add(db, add_req, user.id.clone()).await;
     match res {
         Ok(x) => Res::with_msg(&x),
         Err(e) => Res::with_err(&e.to_string()),
@@ -96,9 +97,9 @@ pub async fn delete(Json(delete_req): Json<DeleteReq>) -> Res<String> {
 
 // edit 修改
 
-pub async fn edit(Json(edit_req): Json<EditReq>, Query(user): Query<Claims>) -> Res<String> {
+pub async fn edit(Json(edit_req): Json<EditReq>, user: ReqData<Claims>) -> Res<String> {
     let db = DB.get_or_init(db_conn).await;
-    let res = service::sys_user::edit(db, edit_req, user.id).await;
+    let res = service::sys_user::edit(db, edit_req, user.id.clone()).await;
     match res {
         Ok(x) => Res::with_msg(&x),
         Err(e) => Res::with_err(&e.to_string()),
@@ -126,7 +127,7 @@ pub async fn login(Json(login_req): Json<UserLoginReq>, request: HttpRequest) ->
 }
 /// 获取用户登录信息
 
-pub async fn get_info(Query(user): Query<Claims>) -> Res<UserInfo> {
+pub async fn get_info(user: ReqData<Claims>) -> Res<UserInfo> {
     let db = DB.get_or_init(db_conn).await;
 
     let (role_ids_r, dept_ids_r, user_r) = join!(
@@ -181,7 +182,7 @@ pub async fn reset_passwd(Json(req): Json<ResetPwdReq>) -> Res<String> {
 }
 
 
-pub async fn update_passwd(Json(req): Json<UpdatePwdReq>, Query(user): Query<Claims>) -> Res<String> {
+pub async fn update_passwd(Json(req): Json<UpdatePwdReq>, user: ReqData<Claims>) -> Res<String> {
     let db = DB.get_or_init(db_conn).await;
     let res = service::sys_user::update_passwd(db, req, &user.id).await;
     match res {
@@ -202,8 +203,8 @@ pub async fn change_status(Json(req): Json<ChangeStatusReq>) -> Res<String> {
 }
 // fresh_token 刷新token
 
-pub async fn fresh_token(Query(user): Query<Claims>) -> Res<AuthBody> {
-    let res = service::sys_user::fresh_token(user).await;
+pub async fn fresh_token(user: ReqData<Claims>) -> Res<AuthBody> {
+    let res = service::sys_user::fresh_token(user.into_inner()).await;
     match res {
         Ok(x) => Res::with_data(x),
         Err(e) => Res::with_err(&e.to_string()),
@@ -230,7 +231,7 @@ pub async fn change_dept(Json(req): Json<ChangeDeptReq>) -> Res<String> {
 }
 
 
-pub async fn update_avatar(multipart: Multipart, Query(user): Query<Claims>) -> Res<String> {
+pub async fn update_avatar(multipart: Multipart, user: ReqData<Claims>) -> Res<String> {
     let res = service::common::upload_file(multipart).await;
     match res {
         Ok(x) => {

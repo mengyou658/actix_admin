@@ -8,7 +8,7 @@ use db::{
     },
     DB,
 };
-use actix_web::web::{Json, Query};
+use actix_web::web::{Json, Query, ReqData};
 
 use super::super::service;
 use crate::utils::jwt::Claims;
@@ -103,7 +103,7 @@ pub async fn get_related_api_and_db(Query(page_params): Query<PageParams>, Query
 
 /// 获取用户路由
 
-pub async fn get_routers(Query(user): Query<Claims>) -> Res<Vec<SysMenuTree>> {
+pub async fn get_routers(user: ReqData<Claims>) -> Res<Vec<SysMenuTree>> {
     let db = DB.get_or_init(db_conn).await;
     //  获取 用户角色
     let role_id = match service::sys_role::get_current_admin_role(db, &user.id).await {

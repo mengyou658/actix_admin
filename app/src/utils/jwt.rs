@@ -51,23 +51,19 @@ pub struct Claims {
 impl Claims {
     // type Error = AuthError;
     /// 将用户信息注入request
-    pub async fn from_request(req: HeaderMap) -> Result<Self> {
-        let token_v = get_bear_token(req).await.unwrap();
+    pub fn from_request(req: HeaderMap) -> Result<Self> {
+        let token_v = get_bear_token(req).unwrap();
         let claims = verify_token(token_v.as_str())?;
         let token_id = claims.token_id.clone();
-        debug!("Current user {:?}" , claims);
-        let x = check_user_online(None, token_id).await;
-        if !x.is_ok() {
-            return Err(BadRequest::msg("该账户已经退出"));
-        }
+
         Ok(claims)
     }
-    pub async fn from_request_without_body(req: HeaderMap) -> Result<Self> {
-        Self::from_request(req).await
+    pub fn from_request_without_body(req: HeaderMap) -> Result<Self> {
+        Self::from_request(req)
     }
 }
 
-pub async fn get_bear_token(req: HeaderMap) -> Option<String> {
+pub fn get_bear_token(req: HeaderMap) -> Option<String> {
     let t = req.get("Authorization");
     let res = match t {
         Some(token) => {
@@ -119,7 +115,7 @@ pub fn verify_token(token: &str) -> Result<Claims> {
     };
 }
 
-pub async fn authorize(payload: AuthPayload, token_id: String) -> Result<AuthBody> {
+pub fn authorize(payload: AuthPayload, token_id: String) -> Result<AuthBody> {
     if payload.id.is_empty() || payload.name.is_empty() {
         return Err(BadRequest::msg("Missing credentials"));
     }

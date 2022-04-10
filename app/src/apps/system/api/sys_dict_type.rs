@@ -1,5 +1,5 @@
 use actix_web::Responder;
-use actix_web::web::{Json, Query};
+use actix_web::web::{Json, Query, ReqData};
 use db::{
     common::res::{ListData, PageParams, Res},
     db_conn,
@@ -26,9 +26,9 @@ pub async fn get_sort_list(Query(page_params): Query<PageParams>, Query(req): Qu
 }
 /// add 添加
 
-pub async fn add(Json(req): Json<AddReq>, Query(user): Query<Claims>) -> Res<String> {
+pub async fn add(Json(req): Json<AddReq>, user: ReqData<Claims>) -> Res<String> {
     let db = DB.get_or_init(db_conn).await;
-    let res = service::sys_dict_type::add(db, req, user.id).await;
+    let res = service::sys_dict_type::add(db, req, user.id.clone()).await;
     match res {
         Ok(x) => Res::with_msg(&x),
         Err(e) => Res::with_err(&e.to_string()),
@@ -48,9 +48,9 @@ pub async fn delete(Json(req): Json<DeleteReq>) -> Res<String> {
 
 // edit 修改
 
-pub async fn edit(Json(edit_req): Json<EditReq>, Query(user): Query<Claims>) -> Res<String> {
+pub async fn edit(Json(edit_req): Json<EditReq>, user: ReqData<Claims>) -> Res<String> {
     let db = DB.get_or_init(db_conn).await;
-    let res = service::sys_dict_type::edit(db, edit_req, user.id).await;
+    let res = service::sys_dict_type::edit(db, edit_req, user.id.clone()).await;
     match res {
         Ok(x) => Res::with_msg(&x),
         Err(e) => Res::with_err(&e.to_string()),

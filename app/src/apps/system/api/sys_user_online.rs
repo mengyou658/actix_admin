@@ -7,7 +7,7 @@ use db::{
     },
     DB,
 };
-use actix_web::web::{Json, Query};
+use actix_web::web::{Json, Query, ReqData};
 
 use super::super::service;
 use crate::utils::jwt::Claims;
@@ -35,9 +35,9 @@ pub async fn delete(Json(delete_req): Json<DeleteReq>) -> Res<String> {
 }
 
 
-pub async fn log_out(Query(user): Query<Claims>) -> Res<String> {
+pub async fn log_out(user: ReqData<Claims>) -> Res<String> {
     let db = DB.get_or_init(db_conn).await;
-    let res = service::sys_user_online::log_out(db, user.token_id).await;
+    let res = service::sys_user_online::log_out(db, user.token_id.clone()).await;
     match res {
         Ok(x) => Res::with_msg(&x),
         Err(e) => Res::with_err(&e.to_string()),

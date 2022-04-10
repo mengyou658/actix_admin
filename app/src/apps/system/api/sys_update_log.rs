@@ -1,4 +1,4 @@
-use actix_web::web::{Json, Query};
+use actix_web::web::{Json, Query, ReqData};
 use db::{
     common::res::Res,
     db_conn,
@@ -15,7 +15,7 @@ use super::super::service;
 
 /// add 添加
 
-pub async fn add(Json(req): Json<AddReq>, Query(user): Query<Claims>) -> Res<String> {
+pub async fn add(Json(req): Json<AddReq>, user: ReqData<Claims>) -> Res<String> {
     let db = DB.get_or_init(db_conn).await;
     let res = service::sys_update_log::add(db, req, &user.id).await;
     match res {
@@ -37,7 +37,7 @@ pub async fn delete(Json(req): Json<DeleteReq>) -> Res<String> {
 
 // edit 修改
 
-pub async fn edit(Json(req): Json<EditReq>, Query(user): Query<Claims>) -> Res<String> {
+pub async fn edit(Json(req): Json<EditReq>, user: ReqData<Claims>) -> Res<String> {
     let db = DB.get_or_init(db_conn).await;
     let res = service::sys_update_log::edit(db, req, &user.id).await;
     match res {
