@@ -1,12 +1,12 @@
 ## 平台简介
 
-后端 使用poem 编写, 完成了基础的api，算是一个demo实例吧，
+后端 使用actix-web 编写, 完成了基础的api，算是一个demo实例吧，
 
 前端在  [ruoyi-vue3](https://github.com/yangzongzhuan/RuoYi-Vue3) 3.8.1上简单修改，
 
-前端git：  [poem_vue_admin](https://github.com/lingdu1234/poem_vue_admin)   <https://github.com/lingdu1234/poem_vue_admin>
+前端git：  [actix_vue_admin](https://github.com/mengyou658/actix_vue_admin)   <https://github.com/mengyou658/actix_vue_admin>
 
-后端git：  [poem_admin](https://github.com/lingdu1234/poem_admin)   <https://github.com/lingdu1234/poem_admin>
+后端git：  [actix_admin](https://github.com/mengyou658/actix_admin)   <https://github.com/mengyou658/actix_admin>
 
 预览地址：
 
@@ -49,7 +49,6 @@
 - [ ] 性能优化；
 - [x] 统一错误处理
 - [x] 替换poem
-  - [ ] middle log
   - [ ] middle ctx
   - [ ] middle opera_log
 - [ ] 细节调整；
@@ -59,8 +58,5 @@
 
 ## 说明
 
-1. 初始用户sql
-```sql
-INSERT INTO sys_user (id, user_name, user_nickname, user_password, user_salt, user_status, user_email, sex, avatar, role_id, dept_id, remark, is_admin, phone_num, last_login_ip, last_login_time, created_at, updated_at, deleted_at) VALUES ('00UT9J78PSU5QJRE3HSDUG94R2', 'user', 'user', '4dc7373ccd817d86302e4c08d7e48813', 'qGUKfTRqPp', '1', '1@1.com', '2', '/upload/2022-03/10-0104PTDET54HCR1F72LM8PHC8I.jpg', '00UHKP89CT1NDVFN6Q0E8LO7NT', '00UHISGODQLSC2NAPPCCDPPCFU', '普通用户', '1', '13312345678', '', NULL, '2022-02-07 17:53:20', '2022-03-07 11:18:49', NULL);
-```
+1. 初始用户sql，migration目录执行`cargo run`
 2. 部门切换,不知道有啥用，角色切换，数据权限，部门切换 3者组合可以实现诡异的权限组合
