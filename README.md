@@ -1,6 +1,6 @@
 ## 平台简介
 
-后端 使用actix-web 编写, 完成了基础的api
+后端 使用actix-web 编写, 完成了基础的api，基于[https://github.com/lingdu1234/poem_admin](https://github.com/lingdu1234/poem_admin)做的后端改造
 
 前端在  [ruoyi-vue3](https://github.com/yangzongzhuan/RuoYi-Vue3) 3.8.1上简单修改，
 
@@ -8,7 +8,7 @@
 
 后端git：  [actix_admin](https://github.com/mengyou658/actix_admin)   <https://github.com/mengyou658/actix_admin>
 
-预览地址：
+预览地址：可以参考[https://github.com/lingdu1234/poem_admin](https://github.com/lingdu1234/poem_admin)
 
 ## 完成的功能
 
